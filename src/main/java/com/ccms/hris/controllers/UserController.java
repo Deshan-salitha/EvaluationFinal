@@ -34,7 +34,7 @@ public class UserController {
     private JwtUtil jwtTokenUtil;
 
     @GetMapping("/hello")
-    public String helloTest (){
+    public String helloTest() {
         return "Hello World";
     }
 
@@ -87,12 +87,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser (@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseWrapper("", "success", "deleted"));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWrapper("", "failed", e.getMessage()));
         }
     }
@@ -101,35 +100,58 @@ public class UserController {
     @GetMapping("/filter")
     public ResponseWrapper getByStatusAndId(
             @RequestParam(name = "q", defaultValue = "", required = false) String q,
-            @RequestParam(name = "userStatus",defaultValue = "", required = false) int userStatus,
-            @RequestParam(name = "start",defaultValue = "", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date startDate,
-            @RequestParam(name = "end",defaultValue = "", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate
-            ) {
+            @RequestParam(name = "userStatus", defaultValue = "0", required = false) int userStatus,
+            @RequestParam(name = "designationName", defaultValue = "", required = false) String designationName,
+            @RequestParam(name = "start", defaultValue = "", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam(name = "end", defaultValue = "", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate
+    ) {
 //        Designation designation =
         UserStatus finalUserStatus = UserStatus.INACTIVE;
-        if (Objects.equals(userStatus,0)){
+        if (Objects.equals(userStatus, 0)) {
             finalUserStatus = UserStatus.ACTIVE;
             System.out.println(finalUserStatus
             );
-        }else if (Objects.equals(userStatus,1)){
+        } else if (Objects.equals(userStatus, 1)) {
             finalUserStatus = UserStatus.INACTIVE;
             System.out.println(finalUserStatus
             );
-        }else if (Objects.equals(userStatus,2)){
+        } else if (Objects.equals(userStatus, 2)) {
             finalUserStatus = UserStatus.DEACTIVATED;
             System.out.println(finalUserStatus
             );
-        }else if (Objects.equals(userStatus,3)){
+        } else if (Objects.equals(userStatus, 3)) {
             finalUserStatus = UserStatus.DORMANT;
             System.out.println(finalUserStatus
             );
         }
-        try{
+        try {
 //            long designationId = 0;
 
-            List<User> users = userService.filterUsers(q, finalUserStatus,startDate,endDate);
+            List<User> users = userService.filterUsers(q, finalUserStatus, startDate, endDate, designationName);
             return new ResponseWrapper<>(users, "success", "fetched");
-        }catch (Exception e){
+        } catch (Exception e) {
+            return new ResponseWrapper<>(null, "failed", e.getMessage());
+        }
+    }
+
+    @GetMapping("/newfilter")
+    public ResponseWrapper getByfilters(
+            @RequestParam(name = "q", defaultValue = "", required = false) String q,
+            @RequestParam(name = "first", defaultValue = "", required = false) String first,
+            @RequestParam(name = "second", defaultValue = "", required = false) String second
+//            @RequestParam(name = "userStatus",defaultValue = "0", required = false) int userStatus,
+//            @RequestParam(name = "designationName", defaultValue = "",required = false) String designationName,
+//            @RequestParam(name = "start", defaultValue = "", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+//            @RequestParam(name = "end", defaultValue = "", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate
+    ) {
+//        Designation designation =
+
+        try {
+//            long designationId = 0;
+
+            List<User> users = userService.newFilterUsers(q, first, second);
+            return new ResponseWrapper<>(users, "success", "fetched");
+        } catch (Exception e) {
             return new ResponseWrapper<>(null, "failed", e.getMessage());
         }
     }
@@ -137,7 +159,7 @@ public class UserController {
 
     @PostMapping("/{id}/status")
     public ResponseEntity updateUserStatus(@PathVariable long id,
-                                           @RequestParam(name = "userStatus",  required = true) UserStatus userStatus
+                                           @RequestParam(name = "userStatus", required = true) UserStatus userStatus
 
     ) {
         try {

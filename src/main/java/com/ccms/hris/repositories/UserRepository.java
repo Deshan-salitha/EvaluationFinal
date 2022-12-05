@@ -5,6 +5,7 @@ import com.ccms.hris.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -36,5 +37,7 @@ public interface UserRepository extends JpaRepository <User, Long> {
     List<User> findAllByJoinDateGreaterThanAndJoinDateLessThan(Date start, Date end);
 
     List<User> findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContaining(UserStatus userStatus, String q, UserStatus userStatus1, String q1, UserStatus userStatus2, String q2);
-//    List<User> findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignationContains(UserStatus userStatus, String q, UserStatus userStatus1, String q1, UserStatus userStatus2, String q2, UserStatus userStatus3, Optional<Designation> q3);
+    List<User> findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(UserStatus userStatus, String q, UserStatus userStatus1, String q1, UserStatus userStatus2, String q2, UserStatus userStatus3, String q3);
+@Query(value = "select User from User where User.firstName LIKE %?1%")
+    List<User> findAllByq(String q);
 }

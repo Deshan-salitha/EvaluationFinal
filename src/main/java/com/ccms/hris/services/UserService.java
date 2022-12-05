@@ -5,7 +5,6 @@ import com.ccms.hris.enums.LeaveType;
 import com.ccms.hris.enums.UserStatus;
 import com.ccms.hris.models.dto.UserCreationDto;
 import com.ccms.hris.models.dto.UserDto;
-import com.ccms.hris.models.entities.Designation;
 import com.ccms.hris.models.entities.LeaveAllocation;
 import com.ccms.hris.models.entities.Role;
 import com.ccms.hris.models.entities.User;
@@ -25,193 +24,206 @@ import java.util.*;
 @Service
 @Transactional
 public class UserService {
-	
-	@Autowired
-	UserRepository userRepo;
 
-	@Autowired
-	RoleRepository roleRepo;
+    @Autowired
+    UserRepository userRepo;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
+    @Autowired
+    RoleRepository roleRepo;
 
-	@Autowired
-	DesignationRepo designationRepo;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
-
-	public List<UserDto> getAllUsers (){
-
-		List<User> userList = userRepo.findAll();
-		List<UserDto> returnedUserList = new ArrayList<>();
-
-		for (User user: userList)
-		{
-			returnedUserList.add(convertUserToUserDto(user));
-		}
-
-		return  returnedUserList;
-	}
-
-	public Page<UserDto> getAllUsers(int pageNo, int pageSize) {
-		Page<User> userList = userRepo.findAll(PageRequest.of(pageNo-1, pageSize));
-		return userToUserDtoPage(userList);
-	}
-
-	public void createUser(UserCreationDto userDto) {
-		User user = new User();
-
-		user.setFirstName(userDto.getFirstName());
-		user.setLastName(userDto.getLastName());
-		user.setOtherNames(userDto.getOtherNames());
-		user.setPrimaryContactNo(userDto.getPrimaryContactNo());
-		user.setSecondaryContactNo(userDto.getSecondaryContactNo());
-		user.setEmail(userDto.getEmail());
-		user.setNicNumber(userDto.getNicNo());
-		user.setDateOfBirth(userDto.getDateOfBirth());
-		user.setJoinDate(userDto.getJoinDate());
-		user.setGender(userDto.getGender());
-
-		user.setAddress(userDto.getAddress());
-		user.setDesignation(userDto.getDesignation());
-		ArrayList<LeaveAllocation> leaveAllocations = new ArrayList<>();
-
-		LeaveAllocation annualLeaveAllocation = new LeaveAllocation(LeaveType.ANNUAL, 14);
-		LeaveAllocation casualLeaveAllocation = new LeaveAllocation(LeaveType.CASUAL, 7);
-		LeaveAllocation sickLeaveAllocation = new LeaveAllocation(LeaveType.SICK, 7);
-
-		leaveAllocations.add(annualLeaveAllocation);
-		leaveAllocations.add(casualLeaveAllocation);
-		leaveAllocations.add(sickLeaveAllocation);
-
-		user.setLeaveAllocation(leaveAllocations);
-
-		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-
-		Role userRole = roleRepo.findByName("EMPLOYEE");
-		user.setRoles(Arrays.asList(userRole));
-
-		user.setUserStatus(UserStatus.ACTIVE);
-
-		user.setCreatedDate(new Date());
-
-		userRepo.save(user);
-	
-	}
+    @Autowired
+    DesignationRepo designationRepo;
 
 
-	public User getUserById (Long id) {
-		User foundUser = userRepo.findById(id).get();
-		return foundUser;
-	}
+    public List<UserDto> getAllUsers() {
+
+        List<User> userList = userRepo.findAll();
+        List<UserDto> returnedUserList = new ArrayList<>();
+
+        for (User user : userList) {
+            returnedUserList.add(convertUserToUserDto(user));
+        }
+
+        return returnedUserList;
+    }
+
+    public Page<UserDto> getAllUsers(int pageNo, int pageSize) {
+        Page<User> userList = userRepo.findAll(PageRequest.of(pageNo - 1, pageSize));
+        return userToUserDtoPage(userList);
+    }
+
+    public void createUser(UserCreationDto userDto) {
+        User user = new User();
+
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setOtherNames(userDto.getOtherNames());
+        user.setPrimaryContactNo(userDto.getPrimaryContactNo());
+        user.setSecondaryContactNo(userDto.getSecondaryContactNo());
+        user.setEmail(userDto.getEmail());
+        user.setNicNumber(userDto.getNicNo());
+        user.setDateOfBirth(userDto.getDateOfBirth());
+        user.setJoinDate(userDto.getJoinDate());
+        user.setGender(userDto.getGender());
+
+        user.setAddress(userDto.getAddress());
+        user.setDesignation(userDto.getDesignation());
+        ArrayList<LeaveAllocation> leaveAllocations = new ArrayList<>();
+
+        LeaveAllocation annualLeaveAllocation = new LeaveAllocation(LeaveType.ANNUAL, 14);
+        LeaveAllocation casualLeaveAllocation = new LeaveAllocation(LeaveType.CASUAL, 7);
+        LeaveAllocation sickLeaveAllocation = new LeaveAllocation(LeaveType.SICK, 7);
+
+        leaveAllocations.add(annualLeaveAllocation);
+        leaveAllocations.add(casualLeaveAllocation);
+        leaveAllocations.add(sickLeaveAllocation);
+
+        user.setLeaveAllocation(leaveAllocations);
+
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+        Role userRole = roleRepo.findByName("EMPLOYEE");
+        user.setRoles(Arrays.asList(userRole));
+
+        user.setUserStatus(UserStatus.ACTIVE);
+
+        user.setCreatedDate(new Date());
+
+        userRepo.save(user);
+
+    }
+
+    public void testcase() {
+
+        Optional<User> thisUser = userRepo.findByEmail("Test");
+        List<LeaveAllocation> leaveAllocations = thisUser.get().getLeaveAllocation();
+    }
 
 
-
-	public void updateUser(UserCreationDto userDto, long userId) throws Exception {
-
-		Optional<User> userExists = userRepo.findById(userId);
-
-		if(userExists.isEmpty()) throw new Exception("User does not exist");
-
-		User user = userExists.get();
-
-		if(userDto.getFirstName() != null)  user.setFirstName(userDto.getFirstName());
-		if(userDto.getLastName() != null) user.setLastName(userDto.getLastName());
-		if(userDto.getOtherNames() != null) user.setOtherNames(userDto.getOtherNames());
-		if(userDto.getEmail() != null) user.setEmail(userDto.getEmail());
-		if(userDto.getNicNo() != null) user.setNicNumber(userDto.getNicNo());
-		if(userDto.getDateOfBirth() != null) user.setDateOfBirth(userDto.getDateOfBirth());
-		if(userDto.getPrimaryContactNo() != null) user.setPrimaryContactNo(userDto.getPrimaryContactNo());
-		if(userDto.getSecondaryContactNo() != null) user.setSecondaryContactNo(userDto.getSecondaryContactNo());
-
-		if(userDto.getAddress()!= null) user.setAddress(userDto.getAddress());
-		if(userDto.getDesignation() != null) user.setDesignation(userDto.getDesignation());
-		if(userDto.getBankDetails() != null) user.setBankDetails(userDto.getBankDetails());
-
-		userRepo.save(user);
-
-	}
+    public User getUserById(Long id) {
+        User foundUser = userRepo.findById(id).get();
+        return foundUser;
+    }
 
 
-	public void deleteUser(Long id) {
-		userRepo.deleteById(id);
-	}
+    public void updateUser(UserCreationDto userDto, long userId) throws Exception {
 
-	public User findUserByEmail (String username) {
-		return userRepo.findByEmail(username).get();
-	}
+        Optional<User> userExists = userRepo.findById(userId);
 
+        if (userExists.isEmpty()) throw new Exception("User does not exist");
 
-	public void setUserDeactivated (User user) {
-		Long updateUserId = user.getUserId();
-		User updateUser = userRepo.findById(updateUserId).get();
-		updateUser.setUserStatus(UserStatus.DEACTIVATED);
-		userRepo.save(updateUser);
-	}
+        User user = userExists.get();
 
-	public void setUserActivated (User user) {
-		Long updateUserId = user.getUserId();
-		User updateUser = userRepo.findById(updateUserId).get();
-		updateUser.setUserStatus(UserStatus.ACTIVE);
-		userRepo.save(updateUser);
-	}
+        if (userDto.getFirstName() != null) user.setFirstName(userDto.getFirstName());
+        if (userDto.getLastName() != null) user.setLastName(userDto.getLastName());
+        if (userDto.getOtherNames() != null) user.setOtherNames(userDto.getOtherNames());
+        if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
+        if (userDto.getNicNo() != null) user.setNicNumber(userDto.getNicNo());
+        if (userDto.getDateOfBirth() != null) user.setDateOfBirth(userDto.getDateOfBirth());
+        if (userDto.getPrimaryContactNo() != null) user.setPrimaryContactNo(userDto.getPrimaryContactNo());
+        if (userDto.getSecondaryContactNo() != null) user.setSecondaryContactNo(userDto.getSecondaryContactNo());
 
-	public Page<UserDto> findByUserStatus (UserStatus userStatus, int pageNo, int pageSize) {
+        if (userDto.getAddress() != null) user.setAddress(userDto.getAddress());
+        if (userDto.getDesignation() != null) user.setDesignation(userDto.getDesignation());
+        if (userDto.getBankDetails() != null) user.setBankDetails(userDto.getBankDetails());
 
-		Page<User> userList = userRepo.findByUserStatus (userStatus, PageRequest.of(pageNo, pageSize));
+        userRepo.save(user);
 
-		return userToUserDtoPage(userList);
-
-	}
+    }
 
 
-	public Page<UserDto> userToUserDtoPage(Page<User> users) {
-		Page<UserDto> dtos  = users.map(this::convertUserToUserDto);
-		return dtos;
-	}
+    public void deleteUser(Long id) {
+        userRepo.deleteById(id);
+    }
+
+    public User findUserByEmail(String username) {
+        return userRepo.findByEmail(username).get();
+    }
 
 
-	private UserDto convertUserToUserDto(User user) {
-		UserDto dto = new UserDto();
-		dto.setUserId(user.getUserId());
-		dto.setFirstName(user.getFirstName());
-		dto.setLastName(user.getLastName());
-		dto.setEmail(user.getEmail());
-		dto.setUserStatus(user.getUserStatus());
-		dto.setRoles(user.getRoles());
-		dto.setDesignation(user.getDesignation());
+    public void setUserDeactivated(User user) {
+        Long updateUserId = user.getUserId();
+        User updateUser = userRepo.findById(updateUserId).get();
+        updateUser.setUserStatus(UserStatus.DEACTIVATED);
+        userRepo.save(updateUser);
+    }
 
-		return dto;
-	}
+    public void setUserActivated(User user) {
+        Long updateUserId = user.getUserId();
+        User updateUser = userRepo.findById(updateUserId).get();
+        updateUser.setUserStatus(UserStatus.ACTIVE);
+        userRepo.save(updateUser);
+    }
 
-	public List<User> filterUsers(String q, UserStatus userStatus,Date startDate, Date endDate) {
+    public Page<UserDto> findByUserStatus(UserStatus userStatus, int pageNo, int pageSize) {
 
-		if(userStatus == null && !q.equals("")&& startDate == null && endDate == null) {
-			return userRepo.findAllByFirstNameContainingOrLastNameContainingOrEmailContaining(q, q, q);
-		}
-		else if(userStatus != null && q.equals("")&& startDate == null && endDate == null) {
-			return userRepo.findAllByUserStatus(userStatus);
-		}
-		else if(userStatus == null && q.equals("")&& startDate == null && endDate == null) {
-			return userRepo.findAll();
-		}else if (userStatus == null && q.equals("")&& startDate != null && endDate != null){
-			return userRepo.findAllByJoinDateGreaterThanAndJoinDateLessThan(startDate,endDate);
-		}
-		else {
-//			return userRepo.findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignationContains(userStatus, q, userStatus, q, userStatus, q,userStatus, designation );
-			return userRepo.findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContaining(userStatus, q, userStatus, q, userStatus, q);
-		}
+        Page<User> userList = userRepo.findByUserStatus(userStatus, PageRequest.of(pageNo, pageSize));
+
+        return userToUserDtoPage(userList);
+
+    }
 
 
-	}
+    public Page<UserDto> userToUserDtoPage(Page<User> users) {
+        Page<UserDto> dtos = users.map(this::convertUserToUserDto);
+        return dtos;
+    }
 
-	public void updateUserStatus(long id, UserStatus userStatus) throws Exception {
-		System.out.println(id);
-		Optional<User> user = userRepo.findById(id);
 
-		if(user.isEmpty()) throw new Exception("User not Found");
-		else {
-			user.get().setUserStatus(userStatus);
-			userRepo.save(user.get());
-		}
-	}
+    private UserDto convertUserToUserDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setUserId(user.getUserId());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setUserStatus(user.getUserStatus());
+        dto.setRoles(user.getRoles());
+        dto.setDesignation(user.getDesignation());
+
+        return dto;
+    }
+
+    public List<User> filterUsers(String q, UserStatus userStatus, Date startDate, Date endDate, String designation) {
+
+        if (userStatus == null && !q.equals("") && startDate == null && endDate == null) {
+            return userRepo.findAllByFirstNameContainingOrLastNameContainingOrEmailContaining(q, q, q);
+        } else if (userStatus != null && q.equals("") && startDate == null && endDate == null) {
+            return userRepo.findAllByUserStatus(userStatus);
+        } else if (userStatus == null && q.equals("") && startDate == null && endDate == null) {
+            return userRepo.findAll();
+        } else if (userStatus == null && q.equals("") && startDate != null && endDate != null) {
+            return userRepo.findAllByJoinDateGreaterThanAndJoinDateLessThan(startDate, endDate);
+        } else {
+            return userRepo.findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(userStatus, q, userStatus, q, userStatus, q, userStatus, designation);
+//            return userRepo.findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContaining(userStatus, q, userStatus, q, userStatus, q);
+        }
+
+
+    }
+
+    public List<User> newFilterUsers(String q, String first, String second) {
+
+        if (!q.equals("") && first.equals("") && second.equals("")) {
+            return userRepo.findAllByq(q);
+        } else {
+//            return userRepo.findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(userStatus, q, userStatus, q, userStatus, q, userStatus, designation);
+            return null;
+        }
+
+
+    }
+
+    public void updateUserStatus(long id, UserStatus userStatus) throws Exception {
+        System.out.println(id);
+        Optional<User> user = userRepo.findById(id);
+
+        if (user.isEmpty()) throw new Exception("User not Found");
+        else {
+            user.get().setUserStatus(userStatus);
+            userRepo.save(user.get());
+        }
+    }
 }

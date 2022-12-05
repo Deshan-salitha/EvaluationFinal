@@ -24,9 +24,9 @@ public class Notification {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
 
-    @Scheduled(cron="0 */1 * * * ?", zone = "Europe/London")
-    public void triggerTrainings() throws IOException {
-        SimpMessagingTemplate.convertAndSend("/training/", "deliver");
-    }
+//    @Scheduled(cron="0 */1 * * * ?", zone = "Europe/London")
+//    public void triggerTrainings() throws IOException {
+//        SimpMessagingTemplate.convertAndSend("/training/", "deliver");
+//    }
 
 }

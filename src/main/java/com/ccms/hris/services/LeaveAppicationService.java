@@ -49,7 +49,16 @@ public class LeaveAppicationService {
 //        if(leaveApplication.getLeaveRequestStatus() != null)  leaveApplicationExist.get().setLeaveRequestStatus(LeaveRequestStatus.REJECTED);
 //        leaveApplicationRepository.save(leaveApplicationExist.get());
 //    }
-    public void deleteLeaveApplication(int id) {
+    public void deleteLeaveApplication(int id) throws Exception {
+
+        Optional<LeaveApplication> application = leaveApplicationRepository.findById(id);
+
+        if(application.isEmpty()) throw new Exception("User not found");
+        else
+
+
+
+
         leaveApplicationRepository.deleteById(id);
     }
 //    public void updateLeaveApplication(LeaveApplication leaveApplication) throws Exception {
