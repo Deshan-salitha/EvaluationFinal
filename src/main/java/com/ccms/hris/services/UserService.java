@@ -206,12 +206,13 @@ public class UserService {
 
     public List<User> newFilterUsers(String q, String first, String second) {
 
-        if (!q.equals("") && first.equals("") && second.equals("")) {
-            return userRepo.findAllByq(q);
-        } else {
-//            return userRepo.findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(userStatus, q, userStatus, q, userStatus, q, userStatus, designation);
-            return null;
-        }
+//        if (!q.equals("") && first.equals("") && second.equals("")) {
+            return userRepo.findAllByq(q,second);
+//            return null;
+//        } else {
+////            return userRepo.findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(userStatus, q, userStatus, q, userStatus, q, userStatus, designation);
+//            return null;
+//        }
 
 
     }

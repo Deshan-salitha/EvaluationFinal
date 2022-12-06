@@ -38,6 +38,6 @@ public interface UserRepository extends JpaRepository <User, Long> {
 
     List<User> findAllByUserStatusAndFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContaining(UserStatus userStatus, String q, UserStatus userStatus1, String q1, UserStatus userStatus2, String q2);
     List<User> findAllByUserStatusOrFirstNameContainingOrUserStatusAndLastNameContainingOrUserStatusAndEmailContainingOrUserStatusAndDesignation_DesignationNameContains(UserStatus userStatus, String q, UserStatus userStatus1, String q1, UserStatus userStatus2, String q2, UserStatus userStatus3, String q3);
-@Query(value = "select User from User where User.firstName LIKE %?1%")
-    List<User> findAllByq(String q);
+    @Query(value = "SELECT * FROM User where  firstName LIKE CONCAT('%', :q,'%') and lastName LIKE CONCAT('%', :lName,'%')",nativeQuery = true)
+    List<User> findAllByq(String q,String lName);
 }
